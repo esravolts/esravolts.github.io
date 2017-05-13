@@ -9,7 +9,9 @@
   /* Content starts here */
 
   my.resolution = 101; // Number of points on the X axis
-  
+
+  my.constant_impedance_key = "Constant Rb = 1000\u03A9";
+
   my.alternating_current_data = [
     {source: "ac_c1.csv", label: "c1 - Safety curve"},
     {source: "ac_c2.csv", label: "c2 - 5% Probability"},
@@ -29,7 +31,7 @@
     {source: "dc_c3.csv", label: "DC: c3 - 50% Probability"}];
 
   my.alternating_impedance_data = [
-    {source: "Constant", label: "Constant"},
+    {source: my.constant_impedance_key, label: my.constant_impedance_key},
     {source: "zt1.csv", label: "z1 - 5% Dry"},
     {source: "zt2.csv", label: "z2 - 50% Dry"},
     {source: "zt3.csv", label: "z3 - 95% Dry"},
@@ -44,13 +46,13 @@
     {source: "oldzt3.csv", label: "z3 - 95% Old IEC"}];
 
   my.direct_impedance_data = [
-    {source: "Constant", label: "Constant"},
+    {source: my.constant_impedance_key, label: my.constant_impedance_key},
     {source: "dc_zt1.csv", label: "z1 - 5% Dry"},
     {source: "dc_zt2.csv", label: "z2 - 50% Dry"},
     {source: "dc_zt3.csv", label: "z3 - 95% Dry"}];
 
   my.all_impedance_data = [
-    {source: "Constant", label: "Constant"},
+    {source: my.constant_impedance_key, label: my.constant_impedance_key},
     {source: "zt1.csv", label: "AC: z1 - 5% Dry"},
     {source: "zt2.csv", label: "AC: z2 - 50% Dry"},
     {source: "zt3.csv", label: "AC: z3 - 95% Dry"},
@@ -82,7 +84,7 @@
     },
     {
       source: "left_hand_both_feet_Rb1000",
-      label: "Left hand to both feet for (Rb = 1000)",
+      label: "Left hand to both feet",
       methodname: "rb1000",
       BodyFactor: null,
       HeartFactor: 1.0,
@@ -90,7 +92,7 @@
     },
     {
       source: "right_hand_both_feet_Rb1000",
-      label: "Right hand to both feet for (Rb = 1000)",
+      label: "Right hand to both feet",
       methodname: "rb1000",
       BodyFactor: null,
       HeartFactor: 0.8,
@@ -98,7 +100,7 @@
     },
     {
       source: "both_hands_to_both_feet_Rb1000",
-      label: "Both hands to both feet for (Rb = 1000)",
+      label: "Both hands to both feet",
       methodname: "rb1000",
       BodyFactor: null,
       HeartFactor: 1.0,
@@ -106,7 +108,7 @@
     },
     {
       source: "hand_to_hand_Rb1000",
-      label: "Hand to hand for (Rb = 1000)",
+      label: "Hand to hand",
       methodname: "rb1000",
       BodyFactor: null,
       HeartFactor: 0.4,

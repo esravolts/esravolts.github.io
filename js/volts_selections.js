@@ -27,7 +27,6 @@
       impedance: initial_state.impedance,
       method: initial_state.method,
       additional_resistance: initial_state.additional_resistance,
-      constant_impedance_value: initial_state.constant_impedance_value,  
       curve_metadata: initial_state.curve_metadata,
     };
 
@@ -139,18 +138,6 @@
       }
       return gui_state[index].additional_resistance;
     }
-    my.set_constant_impedance = function (index,sel)
-    {
-      gui_state[index].constant_impedance = sel;
-    }
-    my.get_constant_impedance = function (index)
-    {
-      if (typeof gui_state[index].constant_impedance == 'undefined')
-      {
-        my.set_constant_impedance(index,0);
-      }
-      return gui_state[index].constant_impedance;
-    }
     my.set_curve_metadata = function (index,sel)
     {
       gui_state[index].curve_metadata = copy_curve_metadata(sel);
@@ -167,7 +154,6 @@
       my.set_impedance(new_index,my.get_impedance(old_index));
       my.set_method(new_index,my.get_method(old_index));
       my.set_additional_resistance(new_index,my.get_additional_resistance(old_index));
-      my.set_constant_impedance(new_index,my.get_constant_impedance(old_index));
       my.set_curve_metadata(new_index,my.get_curve_metadata(old_index));
     }
     return my;

@@ -352,15 +352,6 @@
         return create_active_method_data_source_from_current();
       },
       uses_resistance_factor: false
-    },
-    {
-      source: "constant_current",
-      label: "Constant current",
-      method: function ()
-      {
-        return create_active_method_data_source_from_constant_ResistanceFactor_field();
-      },
-      uses_resistance_factor: true
     }];
   mark_methods_with_uses_resistance_factor(my.method_path_current);
     
@@ -373,20 +364,10 @@
         return create_active_method_data_source_from_impedance();
       },
       uses_resistance_factor: false
-    },
-    {
-      source: "constant_impedance",
-      label: "Constant impedance",
-      method: function ()
-      {
-        return create_active_method_data_source_from_constant_ResistanceFactor_field();
-      },
-      uses_resistance_factor: true
     }];
   mark_methods_with_uses_resistance_factor(my.method_path_impedance);
-    
 
-  my.method_path_data = (function () {
+  var method_path_data_gen = function (ctrl) {
     var local = [];
     var len = volts_configuration.method_path_data_table.length;
     for (var i = 0; i < len; i++)
@@ -404,21 +385,21 @@
 
       	e.uses_resistance_factor = e.force_additional_resistance_to_one == false;
 
-	if (t.methodname === "average")
+	if (t.methodname === "average" && ctrl !== "constant")
 	{
 	  e.method = function()
 	  {
 	    return create_active_method_data_source_for_average();
 	  }
 	}
-	else if (t.methodname === "normal")
+	else if (t.methodname === "normal" && ctrl !== "constant")
 	{
 	  e.method = function ()
 	  {
 	    return create_active_method_data_source(t.BodyFactor, t.HeartFactor, t.force_additional_resistance_to_one);
 	  }
 	}
-	else if (t.methodname === "rb1000")
+	else if (t.methodname === "rb1000" && ctrl !== "variable")
 	{
 	  e.method = function ()
 	  {
@@ -435,10 +416,13 @@
 
     return local;
   }
-  )();
 
-  mark_methods_with_uses_resistance_factor(my.method_path_data);
+    // method_path_data
+  my.method_path_variable_impedance = method_path_data_gen("constant")
+  mark_methods_with_uses_resistance_factor(my.method_path_variable_impedance);
 
+  my.method_path_constant_impedance = method_path_data_gen("variable")
+  mark_methods_with_uses_resistance_factor(my.method_path_constant_impedance);
 
   my.path_calculations = (function(){
     "use strict";
@@ -448,28 +432,20 @@
     var identifier;
     var calculation;
 
-    len = my.method_path_data.length;
-    for (i = 0; i < len; i++)
-    {
-      identifier = my.method_path_data[i].source;
-      calculation = my.method_path_data[i].method;
-      path_calc[identifier] = calculation;
-    }
+    var method_path_sources = [my.method_path_variable_impedance,
+                               my.method_path_constant_impedance,
+                               my.method_path_current,
+                               my.method_path_impedance];
 
-    len = my.method_path_current.length;
-    for (i = 0; i < len; i++)
+    for (var j = 0; j < method_path_sources.length; j++)
     {
-      identifier = my.method_path_current[i].source;
-      calculation = my.method_path_current[i].method;
-      path_calc[identifier] = calculation;
-    }
-
-    len = my.method_path_impedance.length;
-    for (i = 0; i < len; i++)
-    {
-      identifier = my.method_path_impedance[i].source;
-      calculation = my.method_path_impedance[i].method;
-      path_calc[identifier] = calculation;
+      len = method_path_sources[j].length;
+      for (i = 0; i < len; i++)
+      {
+        identifier = method_path_sources[j][i].source;
+        calculation = method_path_sources[j][i].method;
+        path_calc[identifier] = calculation;
+      }
     }
     
     return path_calc;

@@ -14,17 +14,27 @@
     <script type="text/javascript" src="./js/data_plotting.js"></script>
     <script type="text/javascript" src="./js/volts_calculations.js"></script>
     <script type="text/javascript" src="./js/volts_selections.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-99100988-1', 'auto');
+      ga('send', 'pageview');
+    </script>
   </head>
   <body>
     <div class="titlebar row">
-      <div class="col q0-2">
+      <div class="col q0">
 	<img class="logo" src="./static/CardiffUniLogo.png" alt="Cardiff University" ></img>
-	<img class="logo" src="./static/NationalGridLogo.jpg" alt="National Grid" ></img>
       </div>
-      <div class="col q2-4" >
+      <div class="col q1">
+        <img class="logo" src="./static/NationalGridLogo.jpg" alt="National Grid" ></img>
+      </div>
+      <div class="col q2-6" >
         <span id="title_text"> Volts </span>
       </div>
-      <div class="col q4-6" >
+      <div class="col q6-8" >
         <input id="toggle_mode" class="generic_button" type="button" value="Toggle mode" onclick="toggle_mode();" />
       </div>
     </div>
@@ -59,10 +69,7 @@
     </div>
 
     <div class="panel row" >
-      <label class="dropdown_label" id="constant_impedance_title" style="width:100%;height:5%;">Constant impedance</label><!--
-      --><input type="text" id="constant_impedance"  oninput="constant_impedance_val_callback(this);" style="width: 100%;"></input>
-
-        <input class="box" type="button" id="add_curve" value="Add curve" onclick="push_graph();" /><!--
+      <input class="box" type="button" id="add_curve" value="Add curve" onclick="push_graph();" /><!--
         --><input class="box" type="button" id="del_curve" value="Delete curve" onclick="pop_graph();" />
 
 	<!-- The following copy & paste is considered slightly clearer than appending formatted html to the DOM -->
@@ -163,24 +170,23 @@
     volts_selections(
     {
       mode: "alternating",
-      title: "VOLTS: AC",
+      title: "VOLTS: Alternating Current",
       button: "Change to AC mode",
       current_title: "IEC479-1 Current",
       current_data: volts_configuration.alternating_current_data,
       impedance_title: "Body Impedance",
       impedance_data: volts_configuration.alternating_impedance_data,
       method_path_title: "Electrocution path",
-      method_path_data: volts_calculations.method_path_data,
+      method_path_data: volts_calculations.method_path_constant_impedance,
       background_data: volts_configuration.ac_risk_background_data,
       resistance_database: volts_configuration.resistance_database,
       x_axis_label: "Time (ms)",
       y_axis_label: "Tolerable Voltage (V)",
       current:   volts_configuration.alternating_current_data[0]["source"],
       impedance: volts_configuration.alternating_impedance_data[0]["source"],
-      method: volts_calculations.method_path_data[0]["source"],
+      method: volts_calculations.method_path_constant_impedance[0]["source"],
       additional_resistance_title: "Additional resistance (total in series)",
       additional_resistance: 0,
-      constant_impedance_value: 0,
       curve_metadata:
       {
         name: "Line 0",
@@ -190,24 +196,23 @@
     volts_selections(
     {
       mode: "direct",
-      title: "VOLTS: DC",
+      title: "VOLTS: Direct Current",
       button: "Change to DC mode",
       current_title: "IEC479-1 Current",
       current_data: volts_configuration.direct_current_data,
       impedance_title: "Body Resistance",
       impedance_data: volts_configuration.direct_impedance_data,
       method_path_title: "Electrocution path",
-      method_path_data: volts_calculations.method_path_data,      
+      method_path_data: volts_calculations.method_path_constant_impedance,      
       background_data: volts_configuration.dc_risk_background_data,
       resistance_database: volts_configuration.resistance_database,
       x_axis_label: "Time (ms)",
       y_axis_label: "Tolerable Voltage (V)",
       current:   volts_configuration.direct_current_data[0]["source"],
       impedance: volts_configuration.direct_impedance_data[0]["source"],
-      method: volts_calculations.method_path_data[0]["source"],
+      method: volts_calculations.method_path_constant_impedance[0]["source"],
       additional_resistance_title: "Additional resistance (total in series)",
       additional_resistance: 0,
-      constant_impedance_value: 0,
       curve_metadata:
       {
         name: "Line 0",
@@ -232,9 +237,8 @@
       current:   volts_configuration.all_current_data[0]["source"],
       impedance: [],
       method: volts_calculations.method_path_current[0]["source"],
-      additional_resistance_title: "Constant Current", /* additional_resistance is misnamed */
+      additional_resistance_title: "Additional resistance (total in series)",
       additional_resistance: 0,
-      constant_impedance_value: 0,
       curve_metadata:
       {
         name: "Line 0",
@@ -259,9 +263,8 @@
       current:  [],
       impedance: volts_configuration.all_impedance_data[0]["source"],
       method: volts_calculations.method_path_impedance[0]["source"],
-      additional_resistance_title: "Constant Impedance",
+      additional_resistance_title: "Additional resistance (total in series)",
       additional_resistance: 0,
-      constant_impedance_value: 0,
       curve_metadata:
       {
         name: "Line 0",
@@ -289,9 +292,9 @@
   function get_active_data_source_by_index(index)
    {
      var impedance_key = vs.get_impedance(index);
-     if (impedance_key === "Constant")
+     if (impedance_key === volts_configuration.constant_impedance_key)
      {
-       var zvds = data_source.polynomial(vs.get_constant_impedance(index));
+       var zvds = data_source_dict[volts_configuration.constant_impedance_key];
      }
      else
      {
@@ -444,72 +447,61 @@
     plot_from_data_source();
   }
 
+   function fixup_path_dropdown_menu()
+   {
+     // When the impedance is a constant 1000 ohms, only four paths are available
+     // Otherwise, average method and a number of specific paths are available
+     // Call this function to patch up the gui on transitions
+
+     var index = vs.get_active_selection_index();
+     var impedance = vs.get_impedance(index);
+     var invalidated_dropdown = false;
+     if (impedance !== volts_configuration.constant_impedance_key)
+     {
+       if (vs.method_path_data == volts_calculations.method_path_variable_impedance)
+       {
+         invalidated_dropdown = true;
+         vs.method_path_data = volts_calculations.method_path_constant_impedance;
+       }
+     }
+     else
+     {
+       if (vs.method_path_data == volts_calculations.method_path_constant_impedance)
+       {
+         invalidated_dropdown = true;
+         vs.method_path_data = volts_calculations.method_path_variable_impedance;
+       }
+     }
+
+     if (invalidated_dropdown)
+     {
+       populate_dropdown(vs.method_path_data,"method_path");
+       var element = document.getElementById("method_path");
+       method_path_callback(element);
+     }
+   }
+   
   function update_impedance_data(selection)
   {
     echo_setting("Setting impedance data to " + selection.value);
     var index = vs.get_active_selection_index()
     vs.set_impedance(index,selection.value);
-
-    control_constant_impedance_field(selection.value, vs.get_constant_impedance(index))
-    
+    fixup_path_dropdown_menu();
     plot_from_data_source();
   }
 
-   function display_resistance_value(val)
-  {
-    var element = document.getElementById("additional_resistance");
-    element.value = val;
-  }
-
-   function control_additional_resistance_field(method_index, value)
+   function display_resistance_value(index)
    {
-     echo_setting("Setting additional resistance disable state");
      var element = document.getElementById("additional_resistance");
-     var uses_rf = volts_calculations.path_calculations[method_index].uses_resistance_factor;
-     var text_element = document.getElementById("additional_resistance");
-     if (uses_rf)
-     {
-       text_element.disabled = false;
-       element.value = value;
-     }
-     else
-     {
-       text_element.disabled = true;
-       element.value = "";
-     }
+     element.value = vs.get_additional_resistance(index);
    }
 
-   function display_constant_impedance_value(val)
-   {
-     element.value = val;
-   }
-
-   function control_constant_impedance_field(method_index, value)
-   {
-     echo_setting("Setting constant impedance disable state");
-     var element = document.getElementById("constant_impedance");
-     var text_element = document.getElementById("constant_impedance");
-     if (method_index === "Constant")
-     {
-       text_element.disabled = false;
-       element.value = value;
-     }
-     else
-     {
-       text_element.disabled = true;
-       element.value = "";
-     }
-   }
-  
-   
   function method_path_callback(selection)
   {
     echo_setting("Setting calculation method to " + selection.value);
     var index = vs.get_active_selection_index()
     vs.set_method(index,selection.value);
 
-    control_additional_resistance_field(selection.value, vs.get_additional_resistance(index))
-      
     // Values for the resistance database are not yet available
     /*
     var menu_element = document.getElementById("resistance_database");
@@ -538,7 +530,6 @@
     echo_setting("Setting resistance from value " + vs.get_additional_resistance(vs.get_active_selection_index()) +  " to " + val);
     vs.set_additional_resistance(vs.get_active_selection_index(),val);
 
-    // display_resistance_menu(0);
     plot_from_data_source();
   }
 
@@ -563,25 +554,33 @@
       }
     }
 
+    fixup_path_dropdown_menu();
+    display_resistance_value(index);
+    
     control_visible_selection("allowable_current",vs.get_current(index));
     control_visible_selection("impedance",vs.get_impedance(index));
     control_visible_selection("method_path",vs.get_method(index));
+    control_visible_selection("background_data",vs.get_active_background_key());
 
-    control_additional_resistance_field(vs.get_method(index), vs.get_additional_resistance(index));
-    control_constant_impedance_field(vs.get_impedance(index), vs.get_constant_impedance(index));
-    display_curve_index(index);
-    
     var num = vs.get_number_of_curves();
     var i;
     for (i = 0; i < num; i++)
     {
-      display_curve_colour(i);
-      display_curve_name(i);
+      if (i != index)
+      {
+        display_curve_colour(i);
+        display_curve_name(i);
+        display_curve_index(i);
+      }
     }
     for (i = num; i < maximum_number_of_curves; i++)
     {
       disguise_curve_row(i);
     }
+
+    display_curve_colour(index);
+    display_curve_name(index);
+    display_curve_index(index);
   }
 
   function display_active_text_content()
@@ -656,7 +655,6 @@
     vs.set_active_selection_index(+index);
     display_curve_index(index);
   }
-
   
   function update_curve_colour(val, index)
   {
@@ -758,13 +756,6 @@
     }
   }
 
-   function constant_impedance_val_callback(selection) {
-     // Active when 'Constant' is selected for impedance, otherwise inactive
-     var val = parseFloat(selection.value);
-     vs.set_constant_impedance(vs.get_active_selection_index(),val);
-     plot_from_data_source();     
-   }
-   
   var data_source_dict = {};
 
   var pull_in_all_data = function()
@@ -804,7 +795,7 @@
       var fn = data_files[i];
       echo_setting("Data source requested:" + fn);
 
-      if (fn !== "Constant")
+      if (fn !== volts_configuration.constant_impedance_key)
         {
           data_source_dict[fn] = data_source.fromCSV( "./static/" + fn, function () {
             echo_setting("Data source loaded:" + fn);
@@ -814,59 +805,56 @@
 
     // Including a "Constant" field. This one is mutable.
     // Currently breaks (NaN voltage) if the impedance is <= 0
-    data_source_dict["Constant"] = data_source.polynomial(10);
+    data_source_dict[volts_configuration.constant_impedance_key] = data_source.polynomial(1000);
   };
 
-  function append_to_dropdown(dropdown_id, source_label_pair)
-  {
-    "use strict";
-    function make_source_select_option(input)
-    {
-      var value = input["source"];
-      var text = input["label"];
-
-      var option = document.createElement("option");
-      option.value = value;
-      option.text = text;
-      return option;
-    }
-
-    var element = document.getElementById(dropdown_id);
-    element.appendChild(make_source_select_option(source_label_pair));
-  }
-
-  function erase_dropdown(id)
-  {
-    var element = document.getElementById(id);
-    var i;
-    var len = element.options.length;
-    for (i = len - 1; i >= 0; i--)
-    {
-      element.removeChild(element[i]);
-    }
-  }
 
   function populate_dropdown(dict,id)
   {
-    erase_dropdown(id);
+    function erase_dropdown(element)
+    {
+      var i;
+      var len = element.options.length;
+      for (i = len - 1; i >= 0; i--)
+      {
+        element.removeChild(element[i]);
+      }
+    }
+
+    function append_to_dropdown(dropdown_id, source_label_pair, element)
+    {
+      "use strict";
+      function make_source_select_option(input)
+      {
+        var value = input["source"];
+        var text = input["label"];
+        
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        return option;
+      }
+
+      element.appendChild(make_source_select_option(source_label_pair));
+    }
+
+    var element = document.getElementById(id);
+    
+    erase_dropdown(element);
     var i = 0;
     var len = dict.length;
-    for (i=0; i < dict.length; i++)
+    for (i=0; i < len; i++)
     {
-      append_to_dropdown(id,dict[i]);
+      append_to_dropdown(id,dict[i], element);
     }
-  }
-
-  function remove_selected_from_dropdown(dropdown_id)
-  {
-    var element = document.getElementById(dropdown_id);
-    var selected = element.selectedIndex;
-    element.removeChild(element[selected]);
+    if (len > 0)
+    {
+      element.options[0].selected = true;
+    }
   }
 
 
   pull_in_all_data();
-
     
   function initialise () {
     // Initalise GUI

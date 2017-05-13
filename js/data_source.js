@@ -91,8 +91,8 @@
     {
       if (!ready)
       {
-        if (source.ready())
-          {
+        if (typeof source != "undefined" && source.ready())
+        {
           var input_array = source.importedData();
           var l = input_array.length;
           var point;
