@@ -6,11 +6,947 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <meta http-equiv="refresh" content="3" > -->
     <title>Volts</title>
-    <script type="text/javascript" src="./vendor/d3.js"></script>
+    <link href="./vendor/normalize.css" rel="stylesheet">
+    <link href="./static/volts.css" rel="stylesheet">
+    <script type="text/javascript" src="./js/volts_configuration.js"></script>
+    <script type="text/javascript" src="./vendor/d3.min.js"></script>
+    <script type="text/javascript" src="./js/data_source.js"></script>
+    <script type="text/javascript" src="./js/data_plotting.js"></script>
+    <script type="text/javascript" src="./js/volts_calculations.js"></script>
+    <script type="text/javascript" src="./js/volts_selections.js"></script>
   </head>
   <body>
     <div class="titlebar row">
+      <div class="col q0-2">
 	<img class="logo" src="./static/CardiffUniLogo.png" alt="Cardiff University" ></img>
+	<img class="logo" src="./static/NationalGridLogo.jpg" alt="National Grid" ></img>
+      </div>
+      <div class="col q2-4" >
+        <span id="title_text"> Volts </span>
+      </div>
+      <div class="col q4-6" >
+        <input id="toggle_mode" class="generic_button" type="button" value="Toggle mode" onclick="toggle_mode();" />
+      </div>
+    </div>
+
+    <div class="header row" >
+      <div class="col q0-2">
+	<label class="dropdown_label" for="allowable_current" id="allowable_current_title" ></label>
+        <select id="allowable_current" class="dropdown_selection" onchange="update_current_data(this)"></select>
+      </div>
+      <div class="col q2-4">
+        <label class="dropdown_label" for="impedance" id="impedance_title"></label>
+        <select id="impedance" class="dropdown_selection" onchange="update_impedance_data(this)"></select>
+      </div>
+      <div class="col q4-6">
+	<label class="dropdown_label" for="method_path" id="method_path_title"></label>
+        <select id="method_path" class="dropdown_selection" onchange="method_path_callback(this)"></select>
+      </div>
+      <div class="col q6-8">
+	<!-- Values for the resistance database are not yet available
+        <select id="resistance_database" class="dropdown_selection" onchange="resistance_database_callback(this)"></input>
+	 -->
+	<label class="dropdown_label" for="additional_resistance" id="additional_resistance_title"/></label>
+        <input id="additional_resistance" type="text" class="dropdown_selection" oninput="update_additional_resistance(this)"></input>
+      </div>      
+    </div>
+
+    <div class="content row" >
+      <div id="chart_div" >
+        <svg id="chart_svg" >
+        </svg>
+      </div>
+    </div>
+
+    <div class="panel row" >
+      <label class="dropdown_label" id="constant_impedance_title" style="width:100%;height:5%;">Constant impedance</label><!--
+      --><input type="text" id="constant_impedance"  oninput="constant_impedance_val_callback(this);" style="width: 100%;"></input>
+
+        <input class="box" type="button" id="add_curve" value="Add curve" onclick="push_graph();" /><!--
+        --><input class="box" type="button" id="del_curve" value="Delete curve" onclick="pop_graph();" />
+
+	<!-- The following copy & paste is considered slightly clearer than appending formatted html to the DOM -->
+	<input type="radio" name="cs" id="curve_index_selector_0" class="curve_index" onchange="curve_index_callback(this,0)"></input><!--
+	--><input type="color" id="curve_colour_selector_0" class="curve_colour" onchange="curve_colour_callback(this,0)"></input><!--
+        --><input type="text" id="curve_name_selector_0" class="curve_name" oninput="curve_name_callback(this, 0)"></input>
+	
+	<input type="radio" name="cs" id="curve_index_selector_1" class="curve_index" onchange="curve_index_callback(this,1)" ></input><!--
+	--><input type="color" id="curve_colour_selector_1" class="curve_colour" onchange="curve_colour_callback(this,1)"></input><!--
+        --><input type="text" id="curve_name_selector_1" class="curve_name" oninput="curve_name_callback(this, 1)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_2" class="curve_index" onchange="curve_index_callback(this,2)" ></input><!--
+	--><input type="color" id="curve_colour_selector_2" class="curve_colour" onchange="curve_colour_callback(this,2)"></input><!--
+        --><input type="text" id="curve_name_selector_2" class="curve_name" oninput="curve_name_callback(this, 2)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_3" class="curve_index" onchange="curve_index_callback(this,3)" ></input><!--
+	--><input type="color" id="curve_colour_selector_3" class="curve_colour" onchange="curve_colour_callback(this,3)"></input><!--
+        --><input type="text" id="curve_name_selector_3" class="curve_name" oninput="curve_name_callback(this, 3)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_4" class="curve_index" onchange="curve_index_callback(this,4)" ></input><!--
+	--><input type="color" id="curve_colour_selector_4" class="curve_colour" onchange="curve_colour_callback(this,4)"></input><!--
+        --><input type="text" id="curve_name_selector_4" class="curve_name" oninput="curve_name_callback(this, 4)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_5" class="curve_index" onchange="curve_index_callback(this,5)" ></input><!--
+	--><input type="color" id="curve_colour_selector_5" class="curve_colour" onchange="curve_colour_callback(this,5)"></input><!--
+        --><input type="text" id="curve_name_selector_5" class="curve_name" oninput="curve_name_callback(this, 5)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_6" class="curve_index" onchange="curve_index_callback(this,6)" ></input><!--
+	--><input type="color" id="curve_colour_selector_6" class="curve_colour" onchange="curve_colour_callback(this,6)"></input><!--
+        --><input type="text" id="curve_name_selector_6" class="curve_name" oninput="curve_name_callback(this, 6)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_7" class="curve_index" onchange="curve_index_callback(this,7)" ></input><!--
+	--><input type="color" id="curve_colour_selector_7" class="curve_colour" onchange="curve_colour_callback(this,7)"></input><!--
+        --><input type="text" id="curve_name_selector_7" class="curve_name" oninput="curve_name_callback(this, 7)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_8" class="curve_index" onchange="curve_index_callback(this,8)" ></input><!--
+	--><input type="color" id="curve_colour_selector_8" class="curve_colour" onchange="curve_colour_callback(this,8)"></input><!--
+        --><input type="text" id="curve_name_selector_8" class="curve_name" oninput="curve_name_callback(this, 8)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_9" class="curve_index" onchange="curve_index_callback(this,9)" ></input><!--
+	--><input type="color" id="curve_colour_selector_9" class="curve_colour" onchange="curve_colour_callback(this,9)"></input><!--
+        --><input type="text" id="curve_name_selector_9" class="curve_name" oninput="curve_name_callback(this, 9)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_10" class="curve_index" onchange="curve_index_callback(this,10)" ></input><!--
+	--><input type="color" id="curve_colour_selector_10" class="curve_colour" onchange="curve_colour_callback(this,10)"></input><!--
+        --><input type="text" id="curve_name_selector_10" class="curve_name" oninput="curve_name_callback(this, 10)"></input>
+
+	<input type="radio" name="cs" id="curve_index_selector_11" class="curve_index" onchange="curve_index_callback(this,11)" ></input><!--
+	--><input type="color" id="curve_colour_selector_11" class="curve_colour" onchange="curve_colour_callback(this,11)"></input><!--
+        --><input type="text" id="curve_name_selector_11" class="curve_name" oninput="curve_name_callback(this, 11)"></input>
+    </div>
+    
+    <div class="footer row" >
+      <div class="col q0-2">
+        <label class="dropdown_label" for="background_data" >Select plot type</label>
+        <select id="background_data" class="dropdown_selection" onchange="background_data_callback(this)"></select>
+      </div>      
+      <div class="col q2-4">
+	<input class="generic_button" type="button" value="Download raw values" onclick="dump_from_data_source();" />
+      </div>
+      <div id="coordinate_display_wrapper" >
+        <div class="col q4">
+	  <span class="coordinate_box_label" for="xbox_value" id="xbox_value_label"> </span>
+          <span class="coordinate_box" id="xbox_value"></span>
+        </div>
+        <div class="col q5" >
+      	  <span class="coordinate_box_label" for="ybox_value" id="ybox_value_label"></span>
+          <span class="coordinate_box" id="ybox_value"></span>
+        </div>
+      </div>
+      <div class="col q6-8">
+        <input id="toggle_mode" type="button" class="generic_button" value="Exit" onclick="quit_button_callback();" />
+      </div>      
     </div>
   </body>
+  <script>
+  "use strict";
+  /* Most of the following will do nothing of use before volts_calculations is loaded */
+
+  var maximum_number_of_curves = 12;
+
+  function isNull (variable)
+  {
+    return ((variable === null) && (typeof variable === "object"));
+  }
+
+  function echo_setting(str)
+  {
+    var enable = false;
+    if (enable)
+    {
+      console.log(str);
+    }
+  }
+
+  var active_mode_state = 0;
+  var mode_state = [
+    volts_selections(
+    {
+      mode: "alternating",
+      title: "VOLTS: AC",
+      button: "Change to AC mode",
+      current_title: "IEC479-1 Current",
+      current_data: volts_configuration.alternating_current_data,
+      impedance_title: "Body Impedance",
+      impedance_data: volts_configuration.alternating_impedance_data,
+      method_path_title: "Electrocution path",
+      method_path_data: volts_calculations.method_path_data,
+      background_data: volts_configuration.ac_risk_background_data,
+      resistance_database: volts_configuration.resistance_database,
+      x_axis_label: "Time (ms)",
+      y_axis_label: "Tolerable Voltage (V)",
+      current:   volts_configuration.alternating_current_data[0]["source"],
+      impedance: volts_configuration.alternating_impedance_data[0]["source"],
+      method: volts_calculations.method_path_data[0]["source"],
+      additional_resistance_title: "Additional resistance (total in series)",
+      additional_resistance: 0,
+      constant_impedance_value: 0,
+      curve_metadata:
+      {
+        name: "Line 0",
+        colour: "#00FFFF"
+      }
+    }),
+    volts_selections(
+    {
+      mode: "direct",
+      title: "VOLTS: DC",
+      button: "Change to DC mode",
+      current_title: "IEC479-1 Current",
+      current_data: volts_configuration.direct_current_data,
+      impedance_title: "Body Resistance",
+      impedance_data: volts_configuration.direct_impedance_data,
+      method_path_title: "Electrocution path",
+      method_path_data: volts_calculations.method_path_data,      
+      background_data: volts_configuration.dc_risk_background_data,
+      resistance_database: volts_configuration.resistance_database,
+      x_axis_label: "Time (ms)",
+      y_axis_label: "Tolerable Voltage (V)",
+      current:   volts_configuration.direct_current_data[0]["source"],
+      impedance: volts_configuration.direct_impedance_data[0]["source"],
+      method: volts_calculations.method_path_data[0]["source"],
+      additional_resistance_title: "Additional resistance (total in series)",
+      additional_resistance: 0,
+      constant_impedance_value: 0,
+      curve_metadata:
+      {
+        name: "Line 0",
+        colour: "#00FFFF"
+      }
+    }),
+    volts_selections(
+    {
+      mode: "current",
+      title: "VOLTS: Tolerable current-time curve",
+      button: "Change to view input tolerable current-time data",
+      current_title: "IEC479-1 Current",
+      current_data: volts_configuration.all_current_data,
+      impedance_title: "Unused",
+      impedance_data: [],
+      method_path_title: "Graph type",
+      method_path_data: volts_calculations.method_path_current,
+      background_data: volts_configuration.current_background_data,
+      resistance_database: volts_configuration.resistance_database,
+      x_axis_label: "Body Current (mA)",
+      y_axis_label: "Time (ms)",
+      current:   volts_configuration.all_current_data[0]["source"],
+      impedance: [],
+      method: volts_calculations.method_path_current[0]["source"],
+      additional_resistance_title: "Constant Current", /* additional_resistance is misnamed */
+      additional_resistance: 0,
+      constant_impedance_value: 0,
+      curve_metadata:
+      {
+        name: "Line 0",
+        colour: "#00FFFF"
+      }
+    }),
+    volts_selections(
+    {
+      mode: "impedance",
+      title: "VOLTS: Body impedance",
+      button: "Change to view body impedance mode data",
+      current_title: "Unused",
+      current_data: [],
+      impedance_title: "Body Impedance | Body Resistance",
+      impedance_data: volts_configuration.all_impedance_data,
+      method_path_title: "Graph type",
+      method_path_data: volts_calculations.method_path_impedance,
+      background_data: volts_configuration.impedance_background_data,
+      resistance_database: volts_configuration.resistance_database,
+      x_axis_label: "Tolerable Voltage (V)",
+      y_axis_label: "Impedance | Resistance (\u03A9)",
+      current:  [],
+      impedance: volts_configuration.all_impedance_data[0]["source"],
+      method: volts_calculations.method_path_impedance[0]["source"],
+      additional_resistance_title: "Constant Impedance",
+      additional_resistance: 0,
+      constant_impedance_value: 0,
+      curve_metadata:
+      {
+        name: "Line 0",
+        colour: "#00FFFF"
+      }
+    })];
+  
+  var vs = mode_state[active_mode_state];
+
+  function data_source_ready_by_index(index)
+  {
+    var ctds = data_source_dict[vs.get_current(index)];
+    var zvds = data_source_dict[vs.get_impedance(index)];
+    if (ctds && !ctds.ready())
+    {
+      return false;
+    }
+    if (zvds && !zvds.ready())
+    {
+      return false;
+    }
+    return true;
+  }
+  
+  function get_active_data_source_by_index(index)
+   {
+     var impedance_key = vs.get_impedance(index);
+     if (impedance_key === "Constant")
+     {
+       var zvds = data_source.polynomial(vs.get_constant_impedance(index));
+     }
+     else
+     {
+       var zvds = data_source_dict[vs.get_impedance(index)];
+     }
+     
+    var ctds = data_source_dict[vs.get_current(index)];
+    var func = volts_calculations.path_calculations[vs.get_method(index)]();
+    var meta = vs.get_curve_metadata(index);
+    var ResistanceFactor = vs.get_additional_resistance(index);
+    var source = func(ctds,zvds,ResistanceFactor);
+    source.curve_metadata = meta;
+    return source;
+  }
+
+  function all_sources_ready()
+  {
+    "use strict";
+    var active_data_source;
+    
+    for (var i = 0; i < vs.get_number_of_curves(); i++)
+    {
+      if (!data_source_ready_by_index(i))
+      {
+        return false;
+      }
+
+      active_data_source = get_active_data_source_by_index(i);
+      if (isNull(active_data_source))
+      {
+        return false;
+      }
+      if (!active_data_source.ready())
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
+    
+  function plot_from_data_source()
+  {
+    "use strict";
+    var active_data_sources = [];
+    var resolution = volts_configuration.resolution; 
+    var ready = all_sources_ready();
+
+    if (ready)
+      {
+        for (var i = 0; i < vs.get_number_of_curves(); i++)
+        {
+          active_data_sources.push(get_active_data_source_by_index(i));
+        }
+        data_plotting("#chart_svg",active_data_sources,vs.get_active_selection_index(),vs.get_active_background(),resolution,vs.x_axis_label,vs.y_axis_label);
+      }
+    else // schedule an update for later
+    {
+      setTimeout(function () {plot_from_data_source();},100);
+    }
+  }
+  
+  function download_csv(text,filename)
+  {
+    "use strict";
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click(); 
+    document.body.removeChild(element);
+  }
+  
+  function dump_from_data_source()
+  {
+    "use strict";
+
+    var active_data_sources = [];
+
+    var ready = all_sources_ready();
+    var i,j;
+
+    if (ready)
+      {
+        for (i = 0; i < vs.get_number_of_curves(); i++)
+        {
+          active_data_sources.push(get_active_data_source_by_index(i));
+        }
+
+        var logarithmic = data_plotting.is_logarithmic_x_axis(vs.get_active_background());
+        var resolution = volts_configuration.resolution; 
+        
+        var limits = data_plotting.graph_limits_array(active_data_sources);
+        var xpoints = data_plotting.choose_x_points(logarithmic, limits.xmin, limits.xmax, resolution);
+
+        var rounded_xpoints = [];
+        for (i = 0; i < xpoints.length; i++)
+        {
+          rounded_xpoints.push(data_plotting.round_for_output(xpoints[i]));
+        }
+
+        // Require consistent order for dumping graph lines, so can't use {}
+        var output_data_keys = [];
+        var output_data_values = [];
+
+        output_data_keys.push("xvalues");
+        output_data_values.push(rounded_xpoints);
+
+        for (i = 0; i < active_data_sources.length; i++)
+        {
+          var ypoints = [];
+          for (j = 0; j < xpoints.length; j++)
+          {
+            ypoints.push(data_plotting.round_for_output(active_data_sources[i](xpoints[j])));
+          }
+
+          output_data_keys.push(vs.get_curve_metadata(i).name);
+
+          output_data_values.push(ypoints);
+        }
+
+        var data_as_rows = [];
+        data_as_rows.push(output_data_keys);
+        
+        for (j = 0; j < xpoints.length; j++)
+        {
+          var a_row = [];         
+          for (i = 0; i < output_data_values.length; i++)
+          {
+            a_row.push(output_data_values[i][j]);
+          }
+          data_as_rows.push(a_row);
+        }
+                
+        var csv = d3.csv.formatRows(data_as_rows);
+        download_csv(csv,"volts.csv");
+      }
+    else
+    {
+      setTimeout(function () {dump_from_data_source();},100);
+    }
+  }
+  
+  function update_current_data(selection)
+  {
+    echo_setting("Setting current data to " + selection.value);
+    vs.set_current(vs.get_active_selection_index(),selection.value);
+    plot_from_data_source();
+  }
+
+  function update_impedance_data(selection)
+  {
+    echo_setting("Setting impedance data to " + selection.value);
+    var index = vs.get_active_selection_index()
+    vs.set_impedance(index,selection.value);
+
+    control_constant_impedance_field(selection.value, vs.get_constant_impedance(index))
+    
+    plot_from_data_source();
+  }
+
+   function display_resistance_value(val)
+  {
+    var element = document.getElementById("additional_resistance");
+    element.value = val;
+  }
+
+   function control_additional_resistance_field(method_index, value)
+   {
+     echo_setting("Setting additional resistance disable state");
+     var element = document.getElementById("additional_resistance");
+     var uses_rf = volts_calculations.path_calculations[method_index].uses_resistance_factor;
+     var text_element = document.getElementById("additional_resistance");
+     if (uses_rf)
+     {
+       text_element.disabled = false;
+       element.value = value;
+     }
+     else
+     {
+       text_element.disabled = true;
+       element.value = "";
+     }
+   }
+
+   function display_constant_impedance_value(val)
+   {
+     element.value = val;
+   }
+
+   function control_constant_impedance_field(method_index, value)
+   {
+     echo_setting("Setting constant impedance disable state");
+     var element = document.getElementById("constant_impedance");
+     var text_element = document.getElementById("constant_impedance");
+     if (method_index === "Constant")
+     {
+       text_element.disabled = false;
+       element.value = value;
+     }
+     else
+     {
+       text_element.disabled = true;
+       element.value = "";
+     }
+   }
+  
+   
+  function method_path_callback(selection)
+  {
+    echo_setting("Setting calculation method to " + selection.value);
+    var index = vs.get_active_selection_index()
+    vs.set_method(index,selection.value);
+
+    control_additional_resistance_field(selection.value, vs.get_additional_resistance(index))
+      
+    // Values for the resistance database are not yet available
+    /*
+    var menu_element = document.getElementById("resistance_database");
+    if (uses_rf)
+    {
+      menu_element.disabled = false;
+    }
+    else
+    {
+      menu_element.disabled = true;
+    }
+    */
+    
+    plot_from_data_source();
+  }
+
+  function update_additional_resistance(selection)
+  {
+    // The input type is 'text' as a portable way to get rid of the spinner
+    // As a result we need to do text => number conversion here
+    // Choosing parseFloat as the additional resistance might be specified as a float
+    // An added benefit is that 5e3 and similar now work
+
+    var val = parseFloat(selection.value)
+
+    echo_setting("Setting resistance from value " + vs.get_additional_resistance(vs.get_active_selection_index()) +  " to " + val);
+    vs.set_additional_resistance(vs.get_active_selection_index(),val);
+
+    // display_resistance_menu(0);
+    plot_from_data_source();
+  }
+
+  function display_active_fields(index)
+  // Mutates the gui to reflect the new state 
+  {
+    function control_visible_selection(id,value)
+    {
+      // Does not trigger a re-plot event
+      var element = document.getElementById(id);
+      var options = element.options;
+      var len = options.length;
+      var opt, j;
+      for (j = 0; j < len; j++)
+      {
+        opt = options[j];
+        if (opt.value == value)
+        {
+          element.selectedIndex = j;
+          break;
+        }
+      }
+    }
+
+    control_visible_selection("allowable_current",vs.get_current(index));
+    control_visible_selection("impedance",vs.get_impedance(index));
+    control_visible_selection("method_path",vs.get_method(index));
+
+    control_additional_resistance_field(vs.get_method(index), vs.get_additional_resistance(index));
+    control_constant_impedance_field(vs.get_impedance(index), vs.get_constant_impedance(index));
+    display_curve_index(index);
+    
+    var num = vs.get_number_of_curves();
+    var i;
+    for (i = 0; i < num; i++)
+    {
+      display_curve_colour(i);
+      display_curve_name(i);
+    }
+    for (i = num; i < maximum_number_of_curves; i++)
+    {
+      disguise_curve_row(i);
+    }
+  }
+
+  function display_active_text_content()
+  {
+    function update_visible_text(id,value)
+    {
+      var element = document.getElementById(id);
+      element.textContent = value;
+    }
+    
+    update_visible_text("allowable_current_title",vs.current_title);
+    update_visible_text("impedance_title",vs.impedance_title);
+    update_visible_text("method_path_title",vs.method_path_title);
+    update_visible_text("additional_resistance_title",vs.additional_resistance_title);
+    update_visible_text("xbox_value_label", vs.x_axis_label);
+    update_visible_text("ybox_value_label", vs.y_axis_label);
+  }
+  
+  function background_data_callback(selection)
+  {
+    "use strict";
+    var key = selection.value;
+    vs.set_active_background_key(key);
+    plot_from_data_source();
+  }
+
+  function display_curve_index(index)
+  {
+    var curve = document.getElementById("curve_index_selector_" + index);
+    curve.disabled = false;
+    curve.checked = true;
+  }
+
+  function display_curve_colour(index)
+  {
+    var curve = document.getElementById("curve_colour_selector_" + index);
+    curve.disabled = false;
+    curve.value = vs.get_curve_metadata(index).colour;
+  }
+
+  function display_curve_name(index)
+  {
+    var curve = document.getElementById("curve_name_selector_" + index);
+    curve.disabled = false;
+    curve.value = vs.get_curve_metadata(index).name;
+  }
+
+  function disguise_curve_index(index)
+  {
+    var curve = document.getElementById("curve_index_selector_" + index);
+    curve.disabled = true;
+    curve.checked = false;
+  }
+
+  function disguise_curve_colour(index)
+  {
+    var curve = document.getElementById("curve_colour_selector_" + index);
+    curve.disabled = true;
+    curve.value = "#00FFFF"; // may want a better default than this
+  }
+
+  function disguise_curve_name(index)
+  {
+    var curve = document.getElementById("curve_name_selector_" + index);
+    curve.disabled = true;
+    curve.value = "";
+  }
+
+  
+  function update_curve_index(index)
+  {
+    vs.set_active_selection_index(+index);
+    display_curve_index(index);
+  }
+
+  
+  function update_curve_colour(val, index)
+  {
+    var meta = vs.get_curve_metadata(index);
+    meta.colour = val;
+    vs.set_curve_metadata(index,meta);
+    display_curve_colour(index);
+  }
+  
+  function update_curve_name(val, index)
+  {
+    var meta = vs.get_curve_metadata(index);
+    meta.name = val;
+    vs.set_curve_metadata(index,meta);
+    display_curve_name(index);
+  }
+
+  function display_curve_row(index)
+  {
+    display_curve_name(index);
+    display_curve_colour(index);
+  }
+
+  function disguise_curve_row(index)
+  {
+    disguise_curve_name(index);
+    disguise_curve_colour(index);
+    disguise_curve_index(index);
+  }
+
+  function update_curve_row(index, colour, name)
+  {
+    update_curve_name(name, index);
+    update_curve_colour(colour, index);
+    update_curve_index(index);
+  }
+  
+  function curve_index_callback(selection, index)
+  {
+    update_curve_index(index);
+    // We currently treat the active curve specially
+    // when plotting, so replotting on active index
+    // change is required.
+    display_active_fields(index);
+    plot_from_data_source();
+  }
+  
+  function curve_colour_callback(selection, index)
+  {
+    var val = selection.value;
+    update_curve_colour(val, index);
+    update_curve_index(index);
+    display_active_fields(index);
+    plot_from_data_source();
+  }
+  
+  function curve_name_callback(selection, index)
+  {
+    var val = selection.value;
+    update_curve_name(val, index);
+    update_curve_index(index);
+    display_active_fields(index);
+    // Don't need to replot
+  }
+  
+  function push_graph()
+  {
+    // Adds a new graph, mostly based on the currently selected one
+    var new_index = vs.get_number_of_curves();
+
+    if (new_index < maximum_number_of_curves)
+    {
+      vs.create_curve_at_index_from_existing_index(new_index,vs.get_active_selection_index());
+
+      var meta = vs.get_curve_metadata(new_index);
+      meta.name = "Line " + new_index;
+      vs.set_curve_metadata(new_index,meta);
+
+      // Handle new panel
+      update_curve_row(new_index,meta.colour,meta.name);
+	
+    }
+    plot_from_data_source();
+  }
+  
+  function pop_graph()
+  {
+    // Delete the entry at active_selection_index, unless there is only one graph in total
+    if (vs.get_number_of_curves() > 1)
+    {
+      // Delete the graph
+      vs.delete_curve_at_index(vs.get_active_selection_index());
+
+      // Leave active index pointing at a reasonable location
+      vs.set_active_selection_index(0);
+      var active = vs.get_active_selection_index();
+      display_active_fields(active);
+      plot_from_data_source();      
+    }
+  }
+
+   function constant_impedance_val_callback(selection) {
+     // Active when 'Constant' is selected for impedance, otherwise inactive
+     var val = parseFloat(selection.value);
+     vs.set_constant_impedance(vs.get_active_selection_index(),val);
+     plot_from_data_source();     
+   }
+   
+  var data_source_dict = {};
+
+  var pull_in_all_data = function()
+  {
+    "use strict";
+
+    var data_files = [];
+    var i;
+    var source;
+
+    for (i=0; i < volts_configuration.alternating_current_data.length; i++)
+    {
+      source = volts_configuration.alternating_current_data[i]["source"];
+      data_files[data_files.length] = source;
+    }
+
+    for (i=0; i < volts_configuration.direct_current_data.length; i++)
+    {
+      source = volts_configuration.direct_current_data[i]["source"];
+      data_files[data_files.length] = source;
+    }
+
+    for (i=0; i < volts_configuration.alternating_impedance_data.length; i++)
+    {
+      source = volts_configuration.alternating_impedance_data[i]["source"];
+      data_files[data_files.length] = source;
+    }
+
+    for (i=0; i < volts_configuration.direct_impedance_data.length; i++)
+    {
+      source = volts_configuration.direct_impedance_data[i]["source"];
+      data_files[data_files.length] = source;
+    }
+
+    for (i = 0; i < data_files.length; i++)
+    {
+      var fn = data_files[i];
+      echo_setting("Data source requested:" + fn);
+
+      if (fn !== "Constant")
+        {
+          data_source_dict[fn] = data_source.fromCSV( "./static/" + fn, function () {
+            echo_setting("Data source loaded:" + fn);
+          });
+        }
+    }
+
+    // Including a "Constant" field. This one is mutable.
+    // Currently breaks (NaN voltage) if the impedance is <= 0
+    data_source_dict["Constant"] = data_source.polynomial(10);
+  };
+
+  function append_to_dropdown(dropdown_id, source_label_pair)
+  {
+    "use strict";
+    function make_source_select_option(input)
+    {
+      var value = input["source"];
+      var text = input["label"];
+
+      var option = document.createElement("option");
+      option.value = value;
+      option.text = text;
+      return option;
+    }
+
+    var element = document.getElementById(dropdown_id);
+    element.appendChild(make_source_select_option(source_label_pair));
+  }
+
+  function erase_dropdown(id)
+  {
+    var element = document.getElementById(id);
+    var i;
+    var len = element.options.length;
+    for (i = len - 1; i >= 0; i--)
+    {
+      element.removeChild(element[i]);
+    }
+  }
+
+  function populate_dropdown(dict,id)
+  {
+    erase_dropdown(id);
+    var i = 0;
+    var len = dict.length;
+    for (i=0; i < dict.length; i++)
+    {
+      append_to_dropdown(id,dict[i]);
+    }
+  }
+
+  function remove_selected_from_dropdown(dropdown_id)
+  {
+    var element = document.getElementById(dropdown_id);
+    var selected = element.selectedIndex;
+    element.removeChild(element[selected]);
+  }
+
+
+  pull_in_all_data();
+
+    
+  function initialise () {
+    // Initalise GUI
+    populate_dropdown(vs.current_data,"allowable_current");
+    populate_dropdown(vs.impedance_data,"impedance");
+    populate_dropdown(vs.method_path_data,"method_path");
+    populate_dropdown(vs.background_data,"background_data");
+    // Values for the resistance database are not yet available
+    // populate_dropdown(vs.resistance_database,"resistance_database");
+
+    var index = 0; // start up the screen with the menus on the first element
+    display_active_fields(index);
+    display_active_text_content();
+
+    // Tooltips
+    function set_title_field(id, text) {
+      document.getElementById(id).title = text;
+    }
+    set_title_field("impedance_title","Impedance values correspond to a 'Large Contact Area' condition");
+    set_title_field("coordinate_display_wrapper","Please position the cursor carefully on the required point on a curve to give the numerical value");
+    
+    // Draw an initial graph
+    plot_from_data_source();
+  }
+
+  function next_mode_state(current)
+  {
+    return (current + 1) % mode_state.length;
+  }
+  
+  function toggle_mode()
+  {
+    active_mode_state = next_mode_state(active_mode_state);
+
+    var title = document.getElementById("title_text");
+    title.textContent = mode_state[active_mode_state].title;
+
+    var toggle = document.getElementById("toggle_mode");
+    toggle.value = mode_state[next_mode_state(active_mode_state)].button;
+
+    vs = mode_state[active_mode_state];
+    initialise();
+    return;    
+  }
+  
+  /* Set up initial gui by calling toggle_mode() */
+  active_mode_state = mode_state.length-1;
+  toggle_mode();
+
+  /* Will handle adapting plot on window resize by redrawing */
+
+  var addEvent = function(object, type, callback)
+  {
+    if (object == null || typeof(object) == 'undefined') return;
+    if (object.addEventListener)
+    {
+      object.addEventListener(type, callback, false);
+    }
+    else if (object.attachEvent)
+    {
+      object.attachEvent("on" + type, callback);
+    }
+    else
+    {
+      object["on"+type] = callback;
+    }
+  };
+
+  addEvent(window,"resize", function(event) { plot_from_data_source(); });
+
+  function quit_button_callback(e)
+   {
+    var r = window.confirm("Are you sure?");
+    if (r == true)
+     {
+       window.history.back();
+       // back() is a no-op if there is no history, e.g. in nwjs
+       setTimeout(function() { window.close(true) }, 100)
+    }
+  }
+
+  </script>
 </html>

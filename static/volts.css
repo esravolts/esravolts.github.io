@@ -1,0 +1,260 @@
+/* Style sheet for volts */
+
+/* Use border-box to make a fluid layout viable */
+
+html
+{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after
+		   {
+		       -webkit-box-sizing: inherit;
+		       -moz-box-sizing: inherit;
+		       box-sizing: inherit;
+		   }
+
+body
+{
+    width: 100%;
+    background: white;
+    font-family: 'Helvetica Neue', Arial, Sans-Serif;
+}
+
+/* Generic pane rules */
+body { margin: 0; }
+.page { left: 0; right: 0; top: 0; bottom: 0; }
+.row, .col, .page { overflow: hidden; position: absolute; }
+.row { left: 0; right: 0; }
+.col { top: 0; bottom: 0; padding: 10px 10px 10px 10px;}
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+.fill, .pane { position: absolute; left: 0; top: 0; right: 0; bottom: 0; width: 100%; height: 100% }
+.pane { display: none; }
+
+
+body
+{
+    background: white;
+    font-family: 'Helvetica Neue', Arial, Sans-Serif;
+}
+
+.titlebar, .header, .footer
+		     {
+			 font-size: 1em;
+		     }
+
+.titlebar.row
+{
+    height: 75px;
+    top: 0;
+    border-top: 2px solid;
+    border-right: 2px solid;
+    border-bottom: 1px solid;
+    border-left: 2px solid;    
+}
+
+.header.row
+{
+    height: 75px;
+    top: 75px;
+    border-top: 1px solid;
+    border-right: 2px solid;
+    border-bottom: 1px solid;
+    border-left: 2px solid;
+}
+
+.footer.row
+{
+    height: 75px;
+    bottom: 0;
+    border-top: 1px solid;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+    border-left: 2px solid;
+}
+
+
+.content
+{
+    left: 0; width: 75%;  top: 150px; bottom: 75px;
+    pointer-events: none;
+    border-top: 1px solid;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-left: 2px solid;
+}
+
+.panel
+{
+    left: 75%;
+    top: 150px;
+    bottom: 75px;
+    pointer-events: all;
+    border-top: 1px solid;
+    border-right: 2px solid;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+}
+
+.logo
+{
+    height: 100%;
+
+}
+
+.q0 {width: 12.5%; left: 0;}
+.q1 {width: 12.5%; left: 12.5%; }
+.q2 {width: 12.5%; left: 25%; }
+.q3 {width: 12.5%; left: 37.5%; }
+.q4 {width: 12.5%; left: 50%; }
+.q5 {width: 12.5%; left: 62.5%; }
+.q6 {width: 12.5%; left: 75%; }
+.q7 {width: 12.5%; left: 87.5%; }
+
+.q0-2 {width: 25%; left: 0; }
+.q2-4 {width: 25%; left: 25%; }
+.q4-6 {width: 25%; left: 50%; }
+.q6-8 {width: 25%; left: 75%; }
+
+
+#add_curve
+{
+    width: 50%;
+}
+
+#del_curve
+{
+    width: 50%;
+}
+
+.curve_index
+{
+    vertical-align: middle;
+    width: 10%;
+    left: 0;
+}
+
+.curve_colour
+{
+    vertical-align: middle;
+    width: 10%;
+    left: 10%;
+}
+
+.curve_name
+{
+    vertical-align: middle;
+    width: 80%;
+    left: 20%;
+}
+
+#chart_div
+{
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+#chart_svg
+{
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+#title_text
+{
+    width: 100%;
+    height: 50%;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.dropdown_label
+{
+    display: inline-block;
+    width: 100%;
+    height: 50%;
+    position: relative;
+}
+
+.dropdown_selection
+{
+    width: 100%;
+    height: 50%;
+    position: relative;
+}
+
+.generic_button
+{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.coordinate_box_label
+{
+    display: inline-block;
+    width: 100%;
+    height: 50%;
+    position: relative;
+}
+
+.coordinate_box
+{
+    width: 100%;
+    position: relative;
+}
+
+
+.box
+{
+    width: 100%;
+    height: 8%;
+}
+
+.legend
+{
+    width: 100%;
+    height: 16%;
+}
+
+.axis path {
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+
+.axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 0.6px;
+}
+
+.axis text {
+}
+
+.axis tspan
+{
+}
+
+.axis_label
+{
+}
+
+.line
+{
+    fill: none;
+    stroke: black;
+    stroke-width: 1.5px;
+}
+
+.overlay
+{
+    fill: none;
+    pointer-events: all;
+}
